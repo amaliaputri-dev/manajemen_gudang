@@ -312,4 +312,13 @@ switch (ENVIRONMENT)
  *
  * And away we go...
  */
+
+/*
+ * CodeIgniter 3.1.0 expects session IDs in 40-char hexadecimal format.
+ * On PHP 7.1+ the default session ID format changed, which causes CI's
+ * session library to reject valid cookies and makes login loops happen.
+ */
+ini_set('session.sid_length', 40);
+ini_set('session.sid_bits_per_character', 4);
+
 require_once BASEPATH.'core/CodeIgniter.php';
