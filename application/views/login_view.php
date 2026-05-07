@@ -73,6 +73,48 @@
             transition: 0.3s;
         }
 
+        .password-field {
+            position: relative;
+        }
+
+        .password-field input {
+            padding-right: 50px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: #636e72;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        .toggle-password:hover {
+            background: rgba(44, 62, 80, 0.08);
+            color: #2c3e50;
+        }
+
+        .toggle-password:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.16);
+        }
+
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
         .input-group input:focus {
             border-color: #2c3e50;
             box-shadow: 0 0 5px rgba(44, 62, 80, 0.2);
@@ -108,7 +150,7 @@
 <body>
 
     <div class="login-container">
-        <h2>Sistem Login</h2>
+        <h2>Login</h2>
 
         <!-- Pesan Error jika login gagal -->
         <?php if($this->session->flashdata('message')): ?>
@@ -131,7 +173,17 @@
 
             <div class="input-group">
                 <label>Kata Sandi</label>
-                <input type="password" name="password" placeholder="Masukkan password..." required>
+                <div class="password-field">
+                    <input type="password" id="password" name="password" placeholder="Masukkan password..." required>
+                    <button type="button" class="toggle-password" id="togglePassword" aria-label="Tampilkan password">
+                        <svg id="eyeOpen" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 5c5.23 0 9.27 3.11 11 7-1.73 3.89-5.77 7-11 7S2.73 15.89 1 12c1.73-3.89 5.77-7 11-7Zm0 2C8.18 7 5.12 9.11 3.18 12 5.12 14.89 8.18 17 12 17s6.88-2.11 8.82-5C18.88 9.11 15.82 7 12 7Zm0 2.5A2.5 2.5 0 1 1 12 14.5 2.5 2.5 0 0 1 12 9.5Z"/>
+                        </svg>
+                        <svg id="eyeClosed" viewBox="0 0 24 24" aria-hidden="true" style="display: none;">
+                            <path d="m2.71 3.79 17.5 17.5-1.42 1.42-3.05-3.05A12.78 12.78 0 0 1 12 19c-5.23 0-9.27-3.11-11-7a12.8 12.8 0 0 1 4.12-4.76L1.29 5.21l1.42-1.42ZM6.6 8.72A9.9 9.9 0 0 0 3.18 12C5.12 14.89 8.18 17 12 17a9.7 9.7 0 0 0 2.02-.21l-1.65-1.65A3.5 3.5 0 0 1 8.86 11.63ZM12 7c3.82 0 6.88 2.11 8.82 5a12.45 12.45 0 0 1-3.65 4.06l-1.44-1.44A3.48 3.48 0 0 0 16 13.5 3.5 3.5 0 0 0 10.5 8l-1.6-1.6A10.4 10.4 0 0 1 12 7Zm-.47 3.36 3.11 3.11A1.49 1.49 0 0 0 15 12.5 1.5 1.5 0 0 0 12.5 11a1.49 1.49 0 0 0-.97-.64Z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <button type="submit" class="btn-login">MASUK SEKARANG</button>
@@ -143,4 +195,19 @@
     </div>
 
 </body>
+<script>
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+    const eyeOpen = document.getElementById('eyeOpen');
+    const eyeClosed = document.getElementById('eyeClosed');
+
+    togglePassword.addEventListener('click', function () {
+        const isHidden = passwordInput.type === 'password';
+
+        passwordInput.type = isHidden ? 'text' : 'password';
+        togglePassword.setAttribute('aria-label', isHidden ? 'Sembunyikan password' : 'Tampilkan password');
+        eyeOpen.style.display = isHidden ? 'none' : 'block';
+        eyeClosed.style.display = isHidden ? 'block' : 'none';
+    });
+</script>
 </html>

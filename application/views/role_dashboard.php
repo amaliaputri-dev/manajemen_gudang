@@ -14,6 +14,7 @@
     $is_supervisor = $role_slug === 'supervisor';
     $is_gudang = $role_slug === 'gudang';
     $is_kurir = $role_slug === 'kurir';
+    $can_manage_delivery = $is_admin || $is_supervisor || $is_kurir;
 
     $status_class = function ($status) {
         $map = array(
@@ -132,6 +133,53 @@
 
                     <div class="stack">
                         <div class="section-card">
+                            <div class="section-head">
+                                <div>
+                                    <h2>Input Pengiriman</h2>
+                                    <p>Admin bisa membuat jadwal pengiriman baru sekaligus mengoreksi status delivery aktif bila ada eskalasi dari lapangan.</p>
+                                </div>
+                            </div>
+                            <form method="post" action="<?= base_url('kurir/buat_pengiriman'); ?>" class="toolbar">
+                                <select name="outbound_id" required>
+                                    <option value="">Pilih outbound approved</option>
+                                    <?php foreach ($available_outbound_for_delivery as $outbound): ?>
+                                        <option value="<?= (int) $outbound->id; ?>">
+                                            OUT-<?= (int) $outbound->id; ?> - <?= html_escape($outbound->product_name); ?> - <?= (int) $outbound->quantity; ?> item - <?= html_escape($outbound->destination); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <select name="kurir_id" required>
+                                    <option value="">Pilih kurir</option>
+                                    <?php foreach ($kurir as $item): ?>
+                                        <option value="<?= (int) $item->id; ?>"><?= html_escape($item->nama_kurir); ?> - <?= html_escape($item->kontak); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="date" name="delivery_date" required>
+                                <input type="text" name="note" placeholder="Catatan awal pengiriman">
+                                <button type="submit" class="btn btn-primary">Simpan Pengiriman</button>
+                            </form>
+                            <form method="post" action="<?= base_url('kurir/input_pengiriman'); ?>" class="toolbar">
+                                <select name="delivery_id" required>
+                                    <option value="">Pilih pengiriman aktif</option>
+                                    <?php foreach ($delivery_options as $delivery): ?>
+                                        <option value="<?= (int) $delivery->id; ?>">
+                                            DLV-<?= (int) $delivery->id; ?> - <?= html_escape($delivery->destination); ?> - <?= html_escape($delivery->delivery_date); ?> - <?= html_escape($delivery->status); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <select name="status" required>
+                                    <option value="">Pilih status baru</option>
+                                    <option value="disiapkan">Disiapkan</option>
+                                    <option value="dalam_pengiriman">Dalam Pengiriman</option>
+                                    <option value="terkirim">Terkirim</option>
+                                    <option value="gagal">Gagal</option>
+                                </select>
+                                <input type="text" name="note" placeholder="Catatan pengiriman / penerima">
+                                <button type="submit" class="btn btn-secondary">Update Status</button>
+                            </form>
+                        </div>
+
+                        <div class="section-card">
                             <h2>Distribusi Status Pengiriman</h2>
                             <p>Panel ini membantu admin membaca bottleneck operasional secara cepat.</p>
                             <div class="summary-list">
@@ -148,7 +196,7 @@
                                 <div class="summary-list">
                                     <?php foreach ($low_stock_items as $item): ?>
                                         <div class="summary-item">
-                                            <span><?= html_escape($item->nama_barang); ?> · <?= html_escape($item->sku); ?></span>
+                                            <span><?= html_escape($item->nama_barang); ?> - <?= html_escape($item->sku); ?></span>
                                             <strong><?= (int) $item->stok; ?> <?= html_escape($item->unit); ?></strong>
                                             <small>Segera evaluasi restok atau pembelian.</small>
                                         </div>
@@ -248,6 +296,53 @@
                     </div>
 
                     <div class="stack">
+                        <div class="section-card">
+                            <div class="section-head">
+                                <div>
+                                    <h2>Input Pengiriman</h2>
+                                    <p>Supervisor juga bisa membuka pengiriman baru dan membantu update status saat koordinasi lapangan berjalan cepat.</p>
+                                </div>
+                            </div>
+                            <form method="post" action="<?= base_url('kurir/buat_pengiriman'); ?>" class="toolbar">
+                                <select name="outbound_id" required>
+                                    <option value="">Pilih outbound approved</option>
+                                    <?php foreach ($available_outbound_for_delivery as $outbound): ?>
+                                        <option value="<?= (int) $outbound->id; ?>">
+                                            OUT-<?= (int) $outbound->id; ?> - <?= html_escape($outbound->product_name); ?> - <?= (int) $outbound->quantity; ?> item - <?= html_escape($outbound->destination); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <select name="kurir_id" required>
+                                    <option value="">Pilih kurir</option>
+                                    <?php foreach ($kurir as $item): ?>
+                                        <option value="<?= (int) $item->id; ?>"><?= html_escape($item->nama_kurir); ?> - <?= html_escape($item->kontak); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="date" name="delivery_date" required>
+                                <input type="text" name="note" placeholder="Catatan awal pengiriman">
+                                <button type="submit" class="btn btn-primary">Simpan Pengiriman</button>
+                            </form>
+                            <form method="post" action="<?= base_url('kurir/input_pengiriman'); ?>" class="toolbar">
+                                <select name="delivery_id" required>
+                                    <option value="">Pilih pengiriman aktif</option>
+                                    <?php foreach ($delivery_options as $delivery): ?>
+                                        <option value="<?= (int) $delivery->id; ?>">
+                                            DLV-<?= (int) $delivery->id; ?> - <?= html_escape($delivery->destination); ?> - <?= html_escape($delivery->delivery_date); ?> - <?= html_escape($delivery->status); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <select name="status" required>
+                                    <option value="">Pilih status baru</option>
+                                    <option value="disiapkan">Disiapkan</option>
+                                    <option value="dalam_pengiriman">Dalam Pengiriman</option>
+                                    <option value="terkirim">Terkirim</option>
+                                    <option value="gagal">Gagal</option>
+                                </select>
+                                <input type="text" name="note" placeholder="Catatan pengiriman / penerima">
+                                <button type="submit" class="btn btn-secondary">Update Status</button>
+                            </form>
+                        </div>
+
                         <div class="section-card">
                             <h2>Beban Kurir</h2>
                             <p>Siapa yang paling banyak menangani pengiriman saat ini.</p>
@@ -434,7 +529,7 @@
                                 <div class="summary-list">
                                     <?php foreach ($recent_inbound as $row): ?>
                                         <div class="summary-item">
-                                            <span><?= html_escape($row->product_name); ?> · <?= html_escape($row->creator_name); ?></span>
+                                            <span><?= html_escape($row->product_name); ?> - <?= html_escape($row->creator_name); ?></span>
                                             <strong><?= (int) $row->quantity; ?> item</strong>
                                             <small>Status: <?= html_escape($row->status); ?></small>
                                         </div>
@@ -472,6 +567,65 @@
 
                 <div class="dashboard-grid">
                     <div class="stack">
+                        <div class="section-card">
+                            <div class="section-head">
+                                <div>
+                                    <h2>Buat Pengiriman Baru</h2>
+                                    <p>Kurir bisa langsung mengambil outbound yang sudah disetujui lalu menjadikannya tugas pengiriman baru dari dashboard ini.</p>
+                                </div>
+                            </div>
+                            <form method="post" action="<?= base_url('kurir/buat_pengiriman'); ?>" class="toolbar">
+                                <select name="outbound_id" required>
+                                    <option value="">Pilih outbound approved</option>
+                                    <?php foreach ($available_outbound_for_delivery as $outbound): ?>
+                                        <option value="<?= (int) $outbound->id; ?>">
+                                            OUT-<?= (int) $outbound->id; ?> - <?= html_escape($outbound->product_name); ?> - <?= (int) $outbound->quantity; ?> item - <?= html_escape($outbound->destination); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="date" name="delivery_date" required>
+                                <input type="text" name="note" placeholder="Catatan awal pengiriman">
+                                <button type="submit" class="btn btn-primary">Simpan Pengiriman</button>
+                            </form>
+                            <div class="soft-note">
+                                Tujuan pengiriman akan mengikuti data tujuan di outbound yang dipilih, dan status awal otomatis `disiapkan`.
+                            </div>
+                            <?php if (empty($available_outbound_for_delivery)): ?>
+                                <div class="empty-state">Belum ada outbound approved yang siap dijadikan pengiriman baru.</div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="section-head">
+                                <div>
+                                    <h2>Input Pengiriman Saya</h2>
+                                    <p>Kurir mengisi progres pengiriman sendiri dari sini: mulai jalan, berhasil terkirim, atau gagal kirim beserta catatannya.</p>
+                                </div>
+                            </div>
+                            <form method="post" action="<?= base_url('kurir/input_pengiriman'); ?>" class="toolbar">
+                                <select name="delivery_id" required>
+                                    <option value="">Pilih pengiriman aktif</option>
+                                    <?php foreach ($my_delivery_options as $delivery): ?>
+                                        <option value="<?= (int) $delivery->id; ?>">
+                                            DLV-<?= (int) $delivery->id; ?> - <?= html_escape($delivery->destination); ?> - <?= html_escape($delivery->delivery_date); ?> - <?= html_escape($delivery->status); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <select name="status" required>
+                                    <option value="">Pilih status baru</option>
+                                    <option value="disiapkan">Disiapkan</option>
+                                    <option value="dalam_pengiriman">Dalam Pengiriman</option>
+                                    <option value="terkirim">Terkirim</option>
+                                    <option value="gagal">Gagal</option>
+                                </select>
+                                <input type="text" name="note" placeholder="Catatan pengiriman / penerima">
+                                <button type="submit" class="btn btn-primary">Update Pengiriman</button>
+                            </form>
+                            <div class="soft-note">
+                                Status akan diperbarui langsung di tabel `deliveries` untuk pengiriman yang memang terhubung ke akun kurir ini.
+                            </div>
+                        </div>
+
                         <div class="section-card">
                             <div class="section-head">
                                 <div>

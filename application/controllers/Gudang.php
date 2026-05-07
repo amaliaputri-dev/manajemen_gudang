@@ -41,4 +41,5 @@ class Gudang extends MY_Controller
 
         redirect('gudang');
     }
+
 }

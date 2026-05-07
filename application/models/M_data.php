@@ -286,6 +286,71 @@ class M_data extends CI_Model
             ->result();
     }
 
+    public function get_outbound_options($approved_only = TRUE)
+    {
+        if ( ! $this->tables_ready(array('outbound', 'products'))) {
+            return array();
+        }
+
+        $this->db
+            ->select('outbound.id, outbound.quantity, outbound.destination, outbound.status, products.name AS product_name')
+            ->from('outbound')
+            ->join('products', 'products.id = outbound.product_id', 'left');
+
+        if ($approved_only) {
+            $this->db->where('outbound.status', 'approved');
+        }
+
+        return $this->db
+            ->order_by('outbound.id', 'DESC')
+            ->get()
+            ->result();
+    }
+
+    public function get_available_outbound_for_delivery()
+    {
+        if ( ! $this->tables_ready(array('outbound', 'products', 'deliveries'))) {
+            return array();
+        }
+
+        return $this->db
+            ->select('outbound.id, outbound.quantity, outbound.destination, products.name AS product_name')
+            ->from('outbound')
+            ->join('products', 'products.id = outbound.product_id', 'left')
+            ->where('outbound.status', 'approved')
+            ->where('NOT EXISTS (
+                SELECT 1
+                FROM deliveries
+                WHERE deliveries.outbound_id = outbound.id
+                AND deliveries.status IN ("disiapkan", "dalam_pengiriman")
+            )', NULL, FALSE)
+            ->order_by('outbound.id', 'DESC')
+            ->get()
+            ->result();
+    }
+
+    public function get_delivery_options($kurir_id = NULL)
+    {
+        if ( ! $this->table_ready('deliveries')) {
+            return array();
+        }
+
+        $this->db
+            ->select('id, destination, delivery_date, status, kurir_id')
+            ->from('deliveries')
+            ->where_in('status', array('disiapkan', 'dalam_pengiriman'));
+
+        if ($kurir_id !== NULL) {
+            $this->db->where('kurir_id', (int) $kurir_id);
+        }
+
+        return $this->db
+            ->order_by('delivery_date', 'ASC')
+            ->order_by('id', 'DESC')
+            ->get()
+            ->result();
+    }
+
     public function get_recent_deliveries($limit = 6, $kurir_id = NULL)
     {
         if ( ! $this->tables_ready(array('deliveries', 'outbound', 'users'))) {
@@ -366,6 +431,11 @@ class M_data extends CI_Model
         return $summary;
     }
 
+    public function get_my_delivery_options($kurir_id)
+    {
+        return $this->get_delivery_options($kurir_id);
+    }
+
     public function add_stock($product_id, $quantity, $user_id)
     {
         if ( ! $this->tables_ready(array('products', 'inbound', 'users'))) {
@@ -426,6 +496,160 @@ class M_data extends CI_Model
         return array(
             'success' => TRUE,
             'message' => 'Stok untuk '.$product->name.' berhasil ditambah '.$quantity.' item.',
+        );
+    }
+
+    public function create_delivery($payload)
+    {
+        if ( ! $this->tables_ready(array('deliveries', 'outbound', 'users'))) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Tabel pengiriman belum siap dipakai.',
+            );
+        }
+
+        $outbound_id = (int) $payload['outbound_id'];
+        $kurir_id = (int) $payload['kurir_id'];
+        $delivery_date = trim((string) $payload['delivery_date']);
+        $destination = trim((string) $payload['destination']);
+        $note = trim((string) $payload['note']);
+
+        $outbound = $this->db
+            ->where('id', $outbound_id)
+            ->get('outbound')
+            ->row();
+
+        if ( ! $outbound) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Data outbound yang dipilih tidak ditemukan.',
+            );
+        }
+
+        if ($outbound->status !== 'approved') {
+            return array(
+                'success' => FALSE,
+                'message' => 'Hanya outbound berstatus approved yang bisa dijadwalkan untuk pengiriman.',
+            );
+        }
+
+        $kurir = $this->db
+            ->where('id', $kurir_id)
+            ->where('role_id', 4)
+            ->get('users')
+            ->row();
+
+        if ( ! $kurir) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Kurir yang dipilih tidak valid.',
+            );
+        }
+
+        if ($destination === '' && isset($outbound->destination)) {
+            $destination = trim((string) $outbound->destination);
+        }
+
+        if ($delivery_date === '' || $destination === '') {
+            return array(
+                'success' => FALSE,
+                'message' => 'Tanggal kirim dan tujuan wajib diisi.',
+            );
+        }
+
+        $existing_delivery = $this->db
+            ->where('outbound_id', $outbound_id)
+            ->where_in('status', array('disiapkan', 'dalam_pengiriman'))
+            ->count_all_results('deliveries');
+
+        if ($existing_delivery > 0) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Outbound ini sudah punya pengiriman aktif. Selesaikan atau ubah statusnya dulu sebelum membuat yang baru.',
+            );
+        }
+
+        $this->db->insert('deliveries', array(
+            'outbound_id' => $outbound_id,
+            'kurir_id' => $kurir_id,
+            'destination' => $destination,
+            'delivery_date' => $delivery_date,
+            'status' => 'disiapkan',
+            'note' => $note !== '' ? $note : NULL,
+        ));
+
+        if ($this->db->affected_rows() < 1) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Gagal menyimpan data pengiriman.',
+            );
+        }
+
+        return array(
+            'success' => TRUE,
+            'message' => 'Pengiriman berhasil dibuat untuk kurir '.$kurir->name.'.',
+        );
+    }
+
+    public function update_my_delivery($delivery_id, $kurir_id, $status, $note)
+    {
+        return $this->update_delivery($delivery_id, $status, $note, $kurir_id);
+    }
+
+    public function update_delivery($delivery_id, $status, $note, $kurir_id = NULL)
+    {
+        if ( ! $this->table_ready('deliveries')) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Tabel pengiriman belum siap dipakai.',
+            );
+        }
+
+        $allowed_status = array('disiapkan', 'dalam_pengiriman', 'terkirim', 'gagal');
+
+        if ( ! in_array($status, $allowed_status, TRUE)) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Status pengiriman tidak valid.',
+            );
+        }
+
+        $delivery = $this->db
+            ->where('id', (int) $delivery_id);
+
+        if ($kurir_id !== NULL) {
+            $delivery = $delivery->where('kurir_id', (int) $kurir_id);
+        }
+
+        $delivery = $delivery->get('deliveries')->row();
+
+        if ( ! $delivery) {
+            return array(
+                'success' => FALSE,
+                'message' => $kurir_id !== NULL
+                    ? 'Pengiriman tidak ditemukan atau bukan milik akun ini.'
+                    : 'Pengiriman tidak ditemukan.',
+            );
+        }
+
+        $update = array('status' => $status);
+
+        if (trim((string) $note) !== '') {
+            $update['note'] = trim((string) $note);
+        }
+
+        $this->db
+            ->where('id', (int) $delivery_id);
+
+        if ($kurir_id !== NULL) {
+            $this->db->where('kurir_id', (int) $kurir_id);
+        }
+
+        $this->db->update('deliveries', $update);
+
+        return array(
+            'success' => TRUE,
+            'message' => 'Status pengiriman berhasil diperbarui menjadi '.$status.'.',
         );
     }
 }

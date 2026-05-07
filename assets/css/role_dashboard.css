@@ -47,16 +47,6 @@ body {
     color: #f7f4ed;
 }
 
-.hero::after {
-    content: "";
-    position: absolute;
-    inset: auto -60px -60px auto;
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-}
-
 .topbar {
     display: flex;
     justify-content: space-between;
@@ -165,12 +155,12 @@ body {
 }
 
 .content {
-    margin-top: 22px;
+    margin-top: 24px;
 }
 
 .alert {
-    margin-bottom: 18px;
-    padding: 15px 18px;
+    margin-bottom: 20px;
+    padding: 16px 18px;
     border-radius: 18px;
     border: 1px solid #efcf9b;
     background: #fff5dc;
@@ -181,8 +171,8 @@ body {
 .stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-    margin-bottom: 18px;
+    gap: 18px;
+    margin-bottom: 20px;
 }
 
 .stat-card,
@@ -237,16 +227,16 @@ body {
 .dashboard-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.9fr);
-    gap: 18px;
+    gap: 20px;
 }
 
 .stack {
     display: grid;
-    gap: 18px;
+    gap: 20px;
 }
 
 .section-card {
-    padding: 22px;
+    padding: 24px;
 }
 
 .section-card h2 {
@@ -256,7 +246,7 @@ body {
 }
 
 .section-card p {
-    margin: 10px 0 0;
+    margin: 12px 0 0;
     color: var(--muted);
     line-height: 1.6;
 }
@@ -265,33 +255,69 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 16px;
+    gap: 16px;
+    margin-bottom: 18px;
     flex-wrap: wrap;
 }
 
 .toolbar {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.section-card .toolbar + .toolbar,
+.section-card .toolbar + .soft-note,
+.section-card .toolbar + .empty-state,
+.section-card .table-responsive + .soft-note,
+.section-card .table-responsive + .empty-state,
+.section-card .summary-list + .soft-note,
+.section-card .summary-list + .empty-state,
+.section-card .empty-state + .soft-note {
+    margin-top: 16px;
+}
+
+.toolbar input,
+.toolbar select,
+.toolbar .btn {
+    flex: 1 1 220px;
+    min-width: 180px;
+    min-height: 48px;
+    border-radius: 14px;
 }
 
 .toolbar input,
 .toolbar select {
-    min-width: 180px;
-    min-height: 44px;
-    border-radius: 14px;
     border: 1px solid rgba(55, 71, 58, 0.14);
     background: rgba(255, 255, 255, 0.92);
-    padding: 10px 14px;
+    padding: 11px 14px;
     color: var(--text);
     font-family: inherit;
+    margin: 0;
+}
+
+.toolbar .btn {
+    padding: 11px 18px;
+}
+
+.toolbar input[type="date"] {
+    min-width: 190px;
+}
+
+.toolbar input[type="number"] {
+    max-width: 220px;
+}
+
+.toolbar button,
+.toolbar a.btn {
+    margin: 0;
 }
 
 .mini-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    gap: 16px;
 }
 
 .mini-card {
@@ -374,7 +400,7 @@ tr:last-child td {
 }
 
 .empty-state {
-    padding: 16px;
+    padding: 18px;
     border-radius: 18px;
     background: rgba(241, 236, 225, 0.72);
     color: var(--muted);
@@ -382,11 +408,11 @@ tr:last-child td {
 
 .summary-list {
     display: grid;
-    gap: 12px;
+    gap: 14px;
 }
 
 .summary-item {
-    padding: 16px;
+    padding: 18px;
     border-radius: 18px;
     border: 1px solid rgba(55, 71, 58, 0.10);
     background: rgba(255, 255, 255, 0.84);
@@ -412,11 +438,12 @@ tr:last-child td {
 
 .table-responsive {
     overflow-x: auto;
+    margin-top: 4px;
 }
 
 .soft-note {
-    margin-top: 14px;
-    padding-top: 14px;
+    margin-top: 16px;
+    padding-top: 16px;
     border-top: 1px dashed rgba(55, 71, 58, 0.16);
     color: var(--muted);
     line-height: 1.6;
@@ -449,6 +476,24 @@ tr:last-child td {
     .stats,
     .mini-grid {
         grid-template-columns: 1fr;
+    }
+
+    .content,
+    .stats,
+    .dashboard-grid,
+    .stack {
+        gap: 16px;
+    }
+
+    .section-card {
+        padding: 20px;
+    }
+
+    .toolbar input,
+    .toolbar select,
+    .toolbar .btn {
+        flex-basis: 100%;
+        min-width: 100%;
     }
 
     .userbox {
