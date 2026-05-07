@@ -1,0 +1,1 @@
+<?php class Kurir extends CI_Controller { public function index() { $this->load->view('dashboard_kurir'); } }
