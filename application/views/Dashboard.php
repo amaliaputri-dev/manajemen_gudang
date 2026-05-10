@@ -1,8 +1,8 @@
-<div class="row">
+<div class="row g-4">
 
     <!-- GUDANG -->
-    <div class="col-md-6">
-        <div class="card card-custom bg-primary text-white p-4 text-center">
+    <div class="col-12 col-md-6">
+        <div class="card card-custom bg-primary text-white p-4 text-center h-100">
             <h4>Gudang</h4>
             <h2><?php echo $jumlah_barang; ?></h2>
             <p>Total Barang</p>
@@ -11,8 +11,8 @@
     </div>
 
     <!-- KURIR -->
-    <div class="col-md-6">
-        <div class="card card-custom bg-success text-white p-4 text-center">
+    <div class="col-12 col-md-6">
+        <div class="card card-custom bg-success text-white p-4 text-center h-100">
             <h4>Kurir</h4>
             <h2><?php echo $jumlah_kurir; ?></h2>
             <p>Total Kurir</p>

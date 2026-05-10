@@ -23,7 +23,40 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://localhost/manajemen_gudang/';
+// Derive the public base URL from the incoming request so the app works
+// both on localhost and behind Cloudflare Tunnel custom hostnames.
+$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+$normalized_host = strtolower(preg_replace('/:\d+$/', '', $host));
+$is_local_host = in_array($normalized_host, array('localhost', '127.0.0.1', '::1', '[::1]'), TRUE);
+
+$scheme = 'http';
+if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']))
+{
+	$scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'];
+}
+elseif (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on')
+{
+	$scheme = 'https';
+}
+elseif (!empty($_SERVER['HTTP_CF_VISITOR']) && strpos($_SERVER['HTTP_CF_VISITOR'], 'https') !== FALSE)
+{
+	$scheme = 'https';
+}
+elseif (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+{
+	$scheme = 'https';
+}
+
+if (!$is_local_host && $scheme === 'http')
+{
+	$scheme = 'https';
+}
+
+$script_dir = isset($_SERVER['SCRIPT_NAME']) ? dirname(str_replace('\\', '/', $_SERVER['SCRIPT_NAME'])) : '';
+$script_dir = trim($script_dir, '/');
+$base_path = ($script_dir === '' || $script_dir === '.') ? '/' : '/'.$script_dir.'/';
+
+$config['base_url'] = $scheme.'://'.$host.$base_path;
 
 /*
 |--------------------------------------------------------------------------
@@ -391,8 +424,8 @@ $config['sess_regenerate_destroy'] = FALSE;
 |
 */
 $config['cookie_prefix']	= '';
-$config['cookie_domain']	= 'localhost';
-$config['cookie_path']		= '/manajemen_gudang/';
+$config['cookie_domain']	= '';
+$config['cookie_path']		= '/';
 $config['cookie_secure']	= FALSE;
 $config['cookie_httponly'] 	= TRUE;
 

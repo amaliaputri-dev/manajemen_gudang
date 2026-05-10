@@ -1,28 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard - AssetPro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* Reset & Base */
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background: #f4f7f6; height: 100vh; overflow: hidden; }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard - AssetPro</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+            /* Reset & Base */
+            body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background: #f4f7f6; min-height: 100vh; overflow-x: hidden; }
 
-        .sidebar { 
-            width: 240px; 
-            background: #1a2a20; 
-            color: white; 
-            display: flex; 
-            flex-direction: column; 
-            padding: 20px 0;
-            box-sizing: border-box;
-            flex-shrink: 0;
-            height: 100vh; 
-            position: sticky;
-            top: 0;
-        }
+            .sidebar { 
+                width: 240px; 
+                background: #1a2a20; 
+                color: white; 
+                display: flex; 
+                flex-direction: column; 
+                padding: 20px 0;
+                box-sizing: border-box;
+                flex-shrink: 0;
+                height: 100vh; 
+                position: sticky;
+                top: 0;
+                transition: transform 0.3s ease;
+                z-index: 1000;
+            }
 
-        .nav-logout {
-            padding: 15px 20px;
+            .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; width: 100%; }
+
+            @media (max-width: 768px) {
+                body { flex-direction: column; }
+                .sidebar { 
+                    width: 100%; 
+                    height: auto; 
+                    position: relative; 
+                    padding: 10px 0;
+                }
+                .nav-menu { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+                .nav-item { padding: 10px; font-size: 12px; }
+                .main-content { padding: 20px; }
+                .stat-card { min-width: 100%; }
+            }
+
             color: #ff6b6b;
             text-decoration: none;
             border-top: 1px solid rgba(255,255,255,0.1);
@@ -102,6 +121,16 @@
             background: #fff !important;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2) !important;
             font-family: 'Segoe UI', sans-serif !important;
+        }
+
+        @media (max-width: 480px) {
+            table thead { display: none; }
+            table tr { display: block; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; padding: 10px; }
+            table td { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dashed #eee; text-align: right; }
+            table td:last-child { border-bottom: none; }
+            table td::before { content: attr(data-label); font-weight: bold; text-align: left; color: #7f8c8d; }
+            #inputCari { width: 100% !important; margin-bottom: 10px; }
+            #filterJurusan { width: 100% !important; }
         }
     </style>
 </head>
@@ -208,13 +237,13 @@
                         <?php if(!empty($mahasiswa)) : ?>
                             <?php foreach($mahasiswa as $m) : ?>
                             <tr style="border-bottom: 1px solid #f4f7f6;">
-                                <td style="padding: 15px;"><?= $m->nim; ?></td>
-                                <td style="padding: 15px;"><strong><?= $m->nama; ?></strong></td>
-                                <td style="padding: 15px;"><?= $m->jurusan; ?></td>
-                                <td style="padding: 15px;">
+                                <td data-label="NIM" style="padding: 15px;"><?= $m->nim; ?></td>
+                                <td data-label="Nama" style="padding: 15px;"><strong><?= $m->nama; ?></strong></td>
+                                <td data-label="Jurusan" style="padding: 15px;"><?= $m->jurusan; ?></td>
+                                <td data-label="Status" style="padding: 15px;">
                                     <span style="background: #e1f7e3; color: #28a745; padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: bold;">Aktif</span>
                                 </td>
-                                <td style="padding: 15px; display: flex; gap: 5px; align-items: center; min-width: 150px;">
+                                <td data-label="Aksi" style="padding: 15px; display: flex; gap: 5px; align-items: center; min-width: 150px;">
                                     <button onclick="aksiMahasiswa('Edit', '<?= $m->nama; ?>', '<?= $m->nim; ?>', '<?= $m->jurusan; ?>', 'Aktif', this)" style="background: #f3ae12; color: white; border: none; width: 35px; height: 35px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
                                         <i class="fas fa-edit"></i>
                                     </button>

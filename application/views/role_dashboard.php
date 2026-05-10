@@ -115,11 +115,11 @@
                                         <tbody>
                                             <?php foreach ($recent_outbound as $row): ?>
                                                 <tr>
-                                                    <td><?= html_escape($row->product_name); ?></td>
-                                                    <td><?= (int) $row->quantity; ?></td>
-                                                    <td><?= html_escape($row->destination); ?></td>
-                                                    <td><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
-                                                    <td><?= html_escape($row->creator_name); ?></td>
+                                                    <td data-label="Produk"><?= html_escape($row->product_name); ?></td>
+                                                    <td data-label="Qty"><?= (int) $row->quantity; ?></td>
+                                                    <td data-label="Tujuan"><?= html_escape($row->destination); ?></td>
+                                                    <td data-label="Status"><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
+                                                    <td data-label="Dibuat Oleh"><?= html_escape($row->creator_name); ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -250,10 +250,10 @@
                                         <tbody>
                                             <?php foreach ($recent_inbound as $row): ?>
                                                 <tr>
-                                                    <td><?= html_escape($row->product_name); ?></td>
-                                                    <td><?= (int) $row->quantity; ?></td>
-                                                    <td><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
-                                                    <td><?= html_escape($row->creator_name); ?></td>
+                                                    <td data-label="Produk"><?= html_escape($row->product_name); ?></td>
+                                                    <td data-label="Qty"><?= (int) $row->quantity; ?></td>
+                                                    <td data-label="Status"><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
+                                                    <td data-label="Dibuat Oleh"><?= html_escape($row->creator_name); ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -280,10 +280,10 @@
                                         <tbody>
                                             <?php foreach ($recent_deliveries as $row): ?>
                                                 <tr>
-                                                    <td><?= html_escape($row->kurir_name); ?></td>
-                                                    <td><?= html_escape($row->destination); ?></td>
-                                                    <td><?= html_escape($row->delivery_date); ?></td>
-                                                    <td><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
+                                                    <td data-label="Kurir"><?= html_escape($row->kurir_name); ?></td>
+                                                    <td data-label="Tujuan"><?= html_escape($row->destination); ?></td>
+                                                    <td data-label="Tanggal"><?= html_escape($row->delivery_date); ?></td>
+                                                    <td data-label="Status"><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -429,10 +429,10 @@
                                         <tbody>
                                             <?php foreach ($barang as $item): ?>
                                                 <tr>
-                                                    <td><?= html_escape($item->nama_barang); ?></td>
-                                                    <td><?= html_escape($item->sku); ?></td>
-                                                    <td><?= (int) $item->stok; ?> <?= html_escape($item->unit); ?></td>
-                                                    <td>
+                                                    <td data-label="Produk"><?= html_escape($item->nama_barang); ?></td>
+                                                    <td data-label="SKU"><?= html_escape($item->sku); ?></td>
+                                                    <td data-label="Stok"><?= (int) $item->stok; ?> <?= html_escape($item->unit); ?></td>
+                                                    <td data-label="Status">
                                                         <?php if ((int) $item->stok <= 10): ?>
                                                             <span class="badge badge-danger">Perlu restok</span>
                                                         <?php else: ?>
@@ -465,10 +465,10 @@
                                         <tbody>
                                             <?php foreach ($recent_outbound as $row): ?>
                                                 <tr>
-                                                    <td><?= html_escape($row->product_name); ?></td>
-                                                    <td><?= (int) $row->quantity; ?></td>
-                                                    <td><?= html_escape($row->destination); ?></td>
-                                                    <td><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
+                                                    <td data-label="Produk"><?= html_escape($row->product_name); ?></td>
+                                                    <td data-label="Qty"><?= (int) $row->quantity; ?></td>
+                                                    <td data-label="Tujuan"><?= html_escape($row->destination); ?></td>
+                                                    <td data-label="Status"><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -642,10 +642,10 @@
                                         <tbody>
                                             <?php foreach ($my_deliveries as $row): ?>
                                                 <tr>
-                                                    <td><?= html_escape($row->destination); ?></td>
-                                                    <td><?= html_escape($row->delivery_date); ?></td>
-                                                    <td><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
-                                                    <td><?= html_escape($row->note ? $row->note : '-'); ?></td>
+                                                    <td data-label="Tujuan"><?= html_escape($row->destination); ?></td>
+                                                    <td data-label="Tanggal"><?= html_escape($row->delivery_date); ?></td>
+                                                    <td data-label="Status"><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
+                                                    <td data-label="Catatan"><?= html_escape($row->note ? $row->note : '-'); ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -672,9 +672,9 @@
                                         <tbody>
                                             <?php foreach ($recent_deliveries as $row): ?>
                                                 <tr>
-                                                    <td><?= html_escape($row->kurir_name); ?></td>
-                                                    <td><?= html_escape($row->destination); ?></td>
-                                                    <td><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
+                                                    <td data-label="Kurir"><?= html_escape($row->kurir_name); ?></td>
+                                                    <td data-label="Tujuan"><?= html_escape($row->destination); ?></td>
+                                                    <td data-label="Status"><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>

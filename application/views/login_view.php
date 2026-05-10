@@ -143,6 +143,26 @@
             font-size: 12px;
             color: #b2bec3;
         }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 20px;
+            }
+
+            .login-container {
+                padding: 30px 20px;
+            }
+
+            .login-container h2 {
+                font-size: 20px;
+                letter-spacing: 1px;
+            }
+
+            .btn-login {
+                padding: 14px;
+                font-size: 14px;
+            }
+        }
     </style>
     <!-- SweetAlert2 CSS & JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

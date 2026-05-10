@@ -32,6 +32,8 @@ body {
     max-width: 1360px;
     margin: 0 auto;
     padding: 28px 20px 46px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .hero {
@@ -45,6 +47,8 @@ body {
         linear-gradient(45deg, rgba(184, 121, 35, 0.30), transparent);
     box-shadow: var(--shadow);
     color: #f7f4ed;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .topbar {
@@ -183,6 +187,8 @@ body {
     background: var(--surface);
     backdrop-filter: blur(14px);
     box-shadow: var(--shadow);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .stat-card {
@@ -449,6 +455,11 @@ tr:last-child td {
     line-height: 1.6;
 }
 
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
 @media (max-width: 1080px) {
     .stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -461,43 +472,216 @@ tr:last-child td {
 
 @media (max-width: 700px) {
     .layout {
-        padding: 18px 14px 32px;
+        padding: 8px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+        overflow-x: hidden !important;
     }
 
     .hero {
-        padding: 20px;
-        border-radius: 24px;
+        padding: 16px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        margin: 0 0 16px 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .topbar {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        width: 100% !important;
+        gap: 16px !important;
+    }
+
+    .brand {
+        width: 100% !important;
+        text-align: center !important;
     }
 
     .brand h1 {
-        font-size: 32px;
+        font-size: 24px !important;
+        text-align: center !important;
+        margin: 0 auto !important;
     }
 
-    .stats,
-    .mini-grid {
-        grid-template-columns: 1fr;
+    .brand p {
+        font-size: 14px !important;
+        margin: 8px auto 0 !important;
+        text-align: center !important;
     }
 
-    .content,
-    .stats,
-    .dashboard-grid,
+    .userbox {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 16px !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+        display: block !important;
+    }
+
+    .hero-actions {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        margin-top: 12px !important;
+        width: 100% !important;
+    }
+
+    .stats {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 0 16px 0 !important;
+    }
+
+    .stat-card {
+        width: 100% !important;
+        margin: 0 0 12px 0 !important;
+        display: block !important;
+        box-sizing: border-box !important;
+    }
+
+    .dashboard-grid, 
     .stack {
-        gap: 16px;
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     .section-card {
-        padding: 20px;
+        padding: 16px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        margin: 0 0 16px 0 !important;
+        box-sizing: border-box !important;
+        display: block !important;
+    }
+
+    .mini-grid {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .mini-card {
+        width: 100% !important;
+        margin: 0 0 8px 0 !important;
+        display: block !important;
+    }
+
+    .toolbar {
+        display: block !important;
+        width: 100% !important;
     }
 
     .toolbar input,
     .toolbar select,
     .toolbar .btn {
-        flex-basis: 100%;
-        min-width: 100%;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 0 8px 0 !important;
+        display: block !important;
     }
 
-    .userbox {
-        min-width: 100%;
-        max-width: 100%;
+    .summary-list {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .summary-item {
+        width: 100% !important;
+        margin: 0 0 10px 0 !important;
+        box-sizing: border-box !important;
+        display: block !important;
+    }
+
+    /* Forced Table to Card Transformation */
+    .table-responsive table,
+    .table-responsive thead,
+    .table-responsive tbody,
+    .table-responsive th,
+    .table-responsive td,
+    .table-responsive tr {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .table-responsive thead {
+        display: none !important;
+    }
+
+    .table-responsive tr {
+        margin-bottom: 12px !important;
+        border: 1px solid var(--line) !important;
+        border-radius: 12px !important;
+        padding: 8px !important;
+        background: var(--surface-strong) !important;
+    }
+
+    .table-responsive td {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 8px 4px !important;
+        border-bottom: 1px dashed var(--line) !important;
+        text-align: right !important;
+        font-size: 13px !important;
+    }
+
+    .table-responsive td:last-child {
+        border-bottom: none !important;
+    }
+
+    .table-responsive td::before {
+        content: attr(data-label) !important;
+        font-weight: bold !important;
+        text-align: left !important;
+        color: var(--muted) !important;
+        text-transform: uppercase !important;
+        font-size: 11px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand h1 {
+        font-size: 22px;
+    }
+
+    .stat-card strong {
+        font-size: 28px;
+    }
+
+    .table-responsive table thead {
+        display: none;
+    }
+
+    .table-responsive table tr {
+        display: block;
+        margin-bottom: 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px;
+        background: var(--surface-strong);
+    }
+
+    .table-responsive table td {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 4px;
+        border-bottom: 1px dashed var(--line);
+        font-size: 13px;
+    }
+
+    .table-responsive table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
     }
 }
