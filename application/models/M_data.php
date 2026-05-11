@@ -541,10 +541,11 @@ class M_data extends CI_Model
         }
 
         // Cek apakah stok cukup (opsional, tergantung kebijakan bisnis)
-        if ($product->stock < $quantity) {
+        $current_stock = isset($product->stock) ? (int) $product->stock : 0;
+        if ($current_stock < $quantity) {
             return array(
                 'success' => FALSE,
-                'message' => 'Stok tidak mencukupi. Stok saat ini: ' . $product->stock,
+                'message' => 'Stok tidak mencukupi. Stok saat ini: ' . $current_stock,
             );
         }
 
@@ -611,22 +612,25 @@ class M_data extends CI_Model
             // Cek stok lagi saat approval
             $product = $this->db
                 ->select('stock')
-                ->where('id', $outbound->product_id)
+                ->where('id', (int) $outbound->product_id)
                 ->get('products')
                 ->row();
 
-            if ($product->stock < $outbound->quantity) {
+            $current_stock = isset($product->stock) ? (int) $product->stock : 0;
+            $required_qty = (int) $outbound->quantity;
+
+            if ($current_stock < $required_qty) {
                 $this->db->trans_rollback();
                 return array(
                     'success' => FALSE,
-                    'message' => 'Stok tidak cukup untuk menyetujui permintaan ini.',
+                    'message' => 'Stok tidak cukup untuk menyetujui permintaan ini. Stok tersedia: ' . $current_stock,
                 );
             }
 
             // Kurangi stok
             $this->db
-                ->set('stock', 'stock - ' . (int) $outbound->quantity, FALSE)
-                ->where('id', $outbound->product_id)
+                ->set('stock', 'stock - ' . $required_qty, FALSE)
+                ->where('id', (int) $outbound->product_id)
                 ->update('products');
         }
 
