@@ -87,6 +87,27 @@
                         <div class="section-card">
                             <div class="section-head">
                                 <div>
+                                    <h2>Tambah Personel Baru</h2>
+                                    <p>Daftarkan anggota tim baru ke dalam sistem untuk akses operasional gudang.</p>
+                                </div>
+                            </div>
+                            <form method="post" action="<?= base_url('admin/tambah_user'); ?>" class="toolbar">
+                                <input type="text" name="name" placeholder="Nama Lengkap" required>
+                                <input type="email" name="email" placeholder="Email (untuk login)" required>
+                                <input type="password" name="password" placeholder="Password" required>
+                                <select name="role_id" required>
+                                    <option value="">Pilih Role</option>
+                                    <option value="2">Supervisor</option>
+                                    <option value="3">Staff Gudang</option>
+                                    <option value="4">Kurir</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary">Tambah User</button>
+                            </form>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="section-head">
+                                <div>
                                     <h2>Komposisi Tim & Hak Akses</h2>
                                     <p>Admin fokus ke kontrol sistem, pemerataan role, dan kestabilan operasional lintas divisi.</p>
                                 </div>
@@ -110,7 +131,7 @@
                                 <div class="table-responsive">
                                     <table>
                                         <thead>
-                                            <tr><th>Produk</th><th>Qty</th><th>Tujuan</th><th>Status</th><th>Dibuat Oleh</th></tr>
+                                            <tr><th>Produk</th><th>Qty</th><th>Tujuan</th><th>Status</th><th>Dibuat Oleh</th><th>Aksi</th></tr>
                                         </thead>
                                         <tbody>
                                             <?php foreach ($recent_outbound as $row): ?>
@@ -120,6 +141,14 @@
                                                     <td data-label="Tujuan"><?= html_escape($row->destination); ?></td>
                                                     <td data-label="Status"><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
                                                     <td data-label="Dibuat Oleh"><?= html_escape($row->creator_name); ?></td>
+                                                    <td data-label="Aksi">
+                                                        <?php if ($row->status === 'pending'): ?>
+                                                            <a href="<?= base_url('admin/approve_outbound/'.$row->id.'/approved'); ?>" class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;">Approve</a>
+                                                            <a href="<?= base_url('admin/approve_outbound/'.$row->id.'/rejected'); ?>" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; background-color: #e74c3c;">Reject</a>
+                                                        <?php else: ?>
+                                                            -
+                                                        <?php endif; ?>
+                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -132,6 +161,28 @@
                     </div>
 
                     <div class="stack">
+                        <div class="section-card">
+                            <div class="section-head">
+                                <div>
+                                    <h2>Buat Permintaan Outbound</h2>
+                                    <p>Admin bisa membuat permintaan barang keluar baru yang nantinya perlu disetujui untuk pengiriman.</p>
+                                </div>
+                            </div>
+                            <form method="post" action="<?= base_url('gudang/buat_outbound'); ?>" class="toolbar">
+                                <select name="product_id" required>
+                                    <option value="">Pilih barang</option>
+                                    <?php foreach ($product_options as $product): ?>
+                                        <option value="<?= (int) $product->id; ?>">
+                                            <?= html_escape($product->name); ?> (stok <?= (int) $product->stock; ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="number" name="quantity" min="1" placeholder="Qty" required style="width: 80px;">
+                                <input type="text" name="destination" placeholder="Tujuan pengiriman" required>
+                                <button type="submit" class="btn btn-primary">Buat Request</button>
+                            </form>
+                        </div>
+
                         <div class="section-card">
                             <div class="section-head">
                                 <div>
@@ -267,6 +318,45 @@
                         <div class="section-card">
                             <div class="section-head">
                                 <div>
+                                    <h2>Antrian Approval Outbound</h2>
+                                    <p>Supervisor perlu memverifikasi permintaan barang keluar sebelum barang benar-benar dikurangi dari stok.</p>
+                                </div>
+                            </div>
+                            <?php if ( ! empty($recent_outbound)): ?>
+                                <div class="table-responsive">
+                                    <table>
+                                        <thead>
+                                            <tr><th>Produk</th><th>Qty</th><th>Tujuan</th><th>Status</th><th>Dibuat Oleh</th><th>Aksi</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($recent_outbound as $row): ?>
+                                                <tr>
+                                                    <td data-label="Produk"><?= html_escape($row->product_name); ?></td>
+                                                    <td data-label="Qty"><?= (int) $row->quantity; ?></td>
+                                                    <td data-label="Tujuan"><?= html_escape($row->destination); ?></td>
+                                                    <td data-label="Status"><span class="badge <?= $status_class($row->status); ?>"><?= html_escape($row->status); ?></span></td>
+                                                    <td data-label="Dibuat Oleh"><?= html_escape($row->creator_name); ?></td>
+                                                    <td data-label="Aksi">
+                                                        <?php if ($row->status === 'pending'): ?>
+                                                            <a href="<?= base_url('admin/approve_outbound/'.$row->id.'/approved'); ?>" class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;">Approve</a>
+                                                            <a href="<?= base_url('admin/approve_outbound/'.$row->id.'/rejected'); ?>" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; background-color: #e74c3c;">Reject</a>
+                                                        <?php else: ?>
+                                                            -
+                                                        <?php endif; ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php else: ?>
+                                <div class="empty-state">Belum ada data outbound untuk diawasi.</div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="section-head">
+                                <div>
                                     <h2>Pergerakan Pengiriman Terbaru</h2>
                                     <p>Supervisor memantau pengiriman yang siap jalan, sedang berjalan, atau sudah selesai.</p>
                                 </div>
@@ -296,6 +386,28 @@
                     </div>
 
                     <div class="stack">
+                        <div class="section-card">
+                            <div class="section-head">
+                                <div>
+                                    <h2>Buat Permintaan Outbound</h2>
+                                    <p>Supervisor bisa membuat permintaan barang keluar baru yang nantinya perlu disetujui untuk pengiriman.</p>
+                                </div>
+                            </div>
+                            <form method="post" action="<?= base_url('gudang/buat_outbound'); ?>" class="toolbar">
+                                <select name="product_id" required>
+                                    <option value="">Pilih barang</option>
+                                    <?php foreach ($product_options as $product): ?>
+                                        <option value="<?= (int) $product->id; ?>">
+                                            <?= html_escape($product->name); ?> (stok <?= (int) $product->stock; ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="number" name="quantity" min="1" placeholder="Qty" required style="width: 80px;">
+                                <input type="text" name="destination" placeholder="Tujuan pengiriman" required>
+                                <button type="submit" class="btn btn-primary">Buat Request</button>
+                            </form>
+                        </div>
+
                         <div class="section-card">
                             <div class="section-head">
                                 <div>

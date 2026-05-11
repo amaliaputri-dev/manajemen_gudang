@@ -499,6 +499,213 @@ class M_data extends CI_Model
         );
     }
 
+    public function create_outbound($payload)
+    {
+        if ( ! $this->tables_ready(array('outbound', 'products', 'users'))) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Tabel outbound belum siap dipakai.',
+            );
+        }
+
+        $product_id = (int) $payload['product_id'];
+        $quantity = (int) $payload['quantity'];
+        $destination = trim((string) $payload['destination']);
+        $user_id = (int) $payload['created_by'];
+
+        $product = $this->db
+            ->select('id, name, stock')
+            ->where('id', $product_id)
+            ->get('products')
+            ->row();
+
+        if ( ! $product) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Produk tidak ditemukan.',
+            );
+        }
+
+        if ($quantity <= 0) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Jumlah outbound harus lebih dari nol.',
+            );
+        }
+
+        if ($destination === '') {
+            return array(
+                'success' => FALSE,
+                'message' => 'Tujuan pengiriman wajib diisi.',
+            );
+        }
+
+        // Cek apakah stok cukup (opsional, tergantung kebijakan bisnis)
+        if ($product->stock < $quantity) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Stok tidak mencukupi. Stok saat ini: ' . $product->stock,
+            );
+        }
+
+        $this->db->insert('outbound', array(
+            'product_id' => $product_id,
+            'quantity' => $quantity,
+            'destination' => $destination,
+            'status' => 'pending', // Default pending, perlu approval supervisor/admin
+            'created_by' => $user_id,
+            'created_at' => date('Y-m-d H:i:s'),
+        ));
+
+        if ($this->db->affected_rows() < 1) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Gagal menyimpan permintaan outbound.',
+            );
+        }
+
+        return array(
+            'success' => TRUE,
+            'message' => 'Permintaan outbound untuk ' . $product->name . ' berhasil dibuat.',
+        );
+    }
+
+    public function approve_outbound($outbound_id, $status, $user_id)
+    {
+        if ( ! $this->tables_ready(array('outbound', 'products', 'users'))) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Tabel outbound belum siap dipakai.',
+            );
+        }
+
+        if ( ! in_array($status, array('approved', 'rejected'))) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Status approval tidak valid.',
+            );
+        }
+
+        $outbound = $this->db
+            ->where('id', (int) $outbound_id)
+            ->get('outbound')
+            ->row();
+
+        if ( ! $outbound) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Data outbound tidak ditemukan.',
+            );
+        }
+
+        if ($outbound->status !== 'pending') {
+            return array(
+                'success' => FALSE,
+                'message' => 'Outbound ini sudah diproses sebelumnya.',
+            );
+        }
+
+        $this->db->trans_start();
+
+        if ($status === 'approved') {
+            // Cek stok lagi saat approval
+            $product = $this->db
+                ->select('stock')
+                ->where('id', $outbound->product_id)
+                ->get('products')
+                ->row();
+
+            if ($product->stock < $outbound->quantity) {
+                $this->db->trans_rollback();
+                return array(
+                    'success' => FALSE,
+                    'message' => 'Stok tidak cukup untuk menyetujui permintaan ini.',
+                );
+            }
+
+            // Kurangi stok
+            $this->db
+                ->set('stock', 'stock - ' . (int) $outbound->quantity, FALSE)
+                ->where('id', $outbound->product_id)
+                ->update('products');
+        }
+
+        $this->db
+            ->where('id', (int) $outbound_id)
+            ->update('outbound', array(
+                'status' => $status,
+                'approved_by' => (int) $user_id,
+                'approved_at' => date('Y-m-d H:i:s'),
+            ));
+
+        $this->db->trans_complete();
+
+        if ( ! $this->db->trans_status()) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Gagal memproses approval outbound.',
+            );
+        }
+
+        return array(
+            'success' => TRUE,
+            'message' => 'Permintaan outbound berhasil ' . ($status === 'approved' ? 'disetujui' : 'ditolak') . '.',
+        );
+    }
+
+    public function create_user($payload)
+    {
+        if ( ! $this->table_ready('users')) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Tabel pengguna belum siap dipakai.',
+            );
+        }
+
+        $name = trim((string) $payload['name']);
+        $email = trim((string) $payload['email']);
+        $password = (string) $payload['password'];
+        $role_id = (int) $payload['role_id'];
+
+        if ($name === '' || $email === '' || $password === '' || $role_id <= 0) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Semua data pengguna wajib diisi.',
+            );
+        }
+
+        // Cek email unik
+        $exists = $this->db->where('email', $email)->count_all_results('users');
+        if ($exists > 0) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Email sudah terdaftar. Gunakan email lain.',
+            );
+        }
+
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        $this->db->insert('users', array(
+            'name' => $name,
+            'email' => $email,
+            'password' => $hashed_password,
+            'role_id' => $role_id,
+            'created_at' => date('Y-m-d H:i:s'),
+        ));
+
+        if ($this->db->affected_rows() < 1) {
+            return array(
+                'success' => FALSE,
+                'message' => 'Gagal menyimpan data pengguna.',
+            );
+        }
+
+        return array(
+            'success' => TRUE,
+            'message' => 'Pengguna baru berhasil ditambahkan.',
+        );
+    }
+
     public function create_delivery($payload)
     {
         if ( ! $this->tables_ready(array('deliveries', 'outbound', 'users'))) {

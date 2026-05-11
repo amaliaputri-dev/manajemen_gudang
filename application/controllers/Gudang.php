@@ -42,4 +42,37 @@ class Gudang extends MY_Controller
         redirect('gudang');
     }
 
+    public function buat_outbound()
+    {
+        $this->require_role(array(1, 2, 3));
+
+        if ( ! $this->input->post()) {
+            redirect($this->resolve_dashboard_by_role($this->current_user['role_id']));
+        }
+
+        $product_id = (int) $this->input->post('product_id', TRUE);
+        $quantity = (int) $this->input->post('quantity', TRUE);
+        $destination = trim((string) $this->input->post('destination', TRUE));
+
+        if ($product_id <= 0 || $quantity <= 0 || $destination === '') {
+            $this->session->set_flashdata('action_error', 'Isi data outbound dengan lengkap dan benar.');
+            redirect($this->resolve_dashboard_by_role($this->current_user['role_id']));
+        }
+
+        $result = $this->M_data->create_outbound(array(
+            'product_id' => $product_id,
+            'quantity' => $quantity,
+            'destination' => $destination,
+            'created_by' => $this->current_user['id'],
+        ));
+
+        if ($result['success']) {
+            $this->session->set_flashdata('action_success', $result['message']);
+        } else {
+            $this->session->set_flashdata('action_error', $result['message']);
+        }
+
+        redirect($this->resolve_dashboard_by_role($this->current_user['role_id']));
+    }
+
 }
